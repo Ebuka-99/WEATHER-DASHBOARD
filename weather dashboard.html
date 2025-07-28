@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #acb6e5);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+      font-size: 1.8em;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 70%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      margin-left: 10px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .weather-info {
+      margin-top: 20px;
+      font-size: 1.1em;
+      color: #333;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+    .weather-icon {
+      width: 50px;
+      height: 50px;
+      margin: 10px auto;
+    }
+    @media (max-width: 500px) {
+      .container {
+        margin: 10px;
+        padding: 15px;
+      }
+      input[type="text"] {
+        width: 65%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Weather Dashboard</h1>
+    <input type="text" id="cityInput" placeholder="Enter city name">
+    <button onclick="getWeather()">Get Weather</button>
+    <div id="weatherInfo" class="weather-info"></div>
+  </div>
+
+  <script>
+    async function getWeather() {
+      const cityInput = document.getElementById('cityInput').value.trim();
+      const weatherInfo = document.getElementById('weatherInfo');
+      const apiKey = 'YOUR_API_KEY'; // Replace with your OpenWeatherMap API key
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${cityInput}&appid=${apiKey}&units=metric`;
+
+      if (!cityInput) {
+        weatherInfo.innerHTML = '<p class="error">Please enter a city name.</p>';
+        return;
+      }
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('City not found or API error');
+        }
+        const data = await response.json();
+        
+        const temp = data.main.temp;
+        const description = data.weather[0].description;
+        const icon = data.weather[0].icon;
+        const city = data.name;
+        const country = data.sys.country;
+
+        weatherInfo.innerHTML = `
+          <h2>${city}, ${country}</h2>
+          <img src="https://openweathermap.org/img/wn/${icon}.png" alt="Weather Icon" class="weather-icon">
+          <p>Temperature: ${temp}°C</p>
+          <p>Weather: ${description.charAt(0).toUpperCase() + description.slice(1)}</p>
+        `;
+      } catch (error) {
+        weatherInfo.innerHTML = `<p class="error">${error.message}</p>`;
+      }
+    }
+
+    // Allow pressing Enter to trigger the weather fetch
+    document.getElementById('cityInput').addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        getWeather();
+      }
+    });
+  </script>
+</body>
+</html>
